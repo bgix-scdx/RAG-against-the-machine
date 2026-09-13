@@ -1,0 +1,94 @@
+{
+	"string_simple": "Hello World",	
+	"string_unicode": "\u3053\u3093\u306b\u3061\u306f \ud83c\udf0d \u00f1 \u00fc",	
+	"string_escape": "Ligne1\nLigne2\tavec tabulation\\et backslash\"guillemets",	
+	"string_empty": "",	
+	"integer": 42,	
+	"negative_int": -1337,	
+	"float": 3.14159,	
+	"scientific": 15000000000.0,	
+	"bool_true": true,	
+	"bool_false": false,	
+	"null_value": null,	
+	"list_strings":  	[
+		"alpha",
+		"beta",
+		"gamma"
+	],	
+	"list_mixed":  	[
+		1,
+		"deux",
+		3.0,
+		true,
+		null
+	],	
+	"list_empty":  	[
+	],	
+	"list_nested":  	[
+ 		[
+			1,
+			2
+		],
+ 		[
+			3,
+ 			[
+				4,
+				5
+			]
+		]
+	],	
+	"dict_simple":  	{
+		"a": 1,		
+		"b": 2		
+	},	
+	"dict_empty":  	{
+	},	
+	"nested":  	{
+		"level1":  		{
+			"level2":  			{
+				"level3":  				{
+					"deep_list":  					[
+ 						{
+							"id": 1,							
+							"name": "item1"							
+						},
+ 						{
+							"id": 2,							
+							"name": "item2",							
+							"tags":  							[
+								"red",
+								"big"
+							]							
+						},
+						null,
+						42
+					]					
+				}				
+			}			
+		}		
+	},	
+	"users":  	[
+ 		{
+			"id": 1,			
+			"name": "Alice",			
+			"active": true,			
+			"score": 98.5			
+		},
+ 		{
+			"id": 2,			
+			"name": "Bob",			
+			"active": false,			
+			"score": null			
+		},
+ 		{
+			"id": 3,			
+			"name": "Charlie",			
+			"active": true,			
+			"score": 77.0			
+		}
+	],	
+	"zero": 0,	
+	"negative_float": -0.5,	
+	"big_number": 9007199254740992,	
+	"whitespace_string": "   spaces   "	
+}

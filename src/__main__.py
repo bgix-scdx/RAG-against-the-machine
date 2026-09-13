@@ -1,5 +1,10 @@
-from src.Chunker.ChunkerClass import Chunker
+from .Threader.ThreadService import ThreadManager
 
-chunk = Chunker()
-if chunk.ChunkInit():
-    chunk.ChunkFileInit("vllm-0.10.1")
+def Loop():
+    while True:
+        pass
+
+if __name__ == "__main__":
+    TM = ThreadManager()
+    TM.Start(Loop)
+    TM.Shutdown()
