@@ -1,0 +1,19 @@
+[project]
+name = "fly-in"
+version = "0.1.0"
+description = "make drones fly from one point to an other"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic",
+    "mypy",
+    "flake8",
+    "BM25"
+]
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+mypy = "*"
+flake8 = "*"
+uv = "*"
