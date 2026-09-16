@@ -1,8 +1,9 @@
 from ..Utils.Decorators import service
+from ..Utils.AutoJson import AutoJson
 from typing import List, Any
 from .DataModels import MinimalSource
 from os.path import isdir
-from os import listdir, access, W_OK
+from os import listdir, access, W_OK, remove
 from ..Utils.PermChecker import PermChecker
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from enum import Enum
@@ -12,11 +13,12 @@ class FormatPriority(Enum):
     any = ["\n\t", "\n", " "]
     py = ["\nclass", "\ndef", "\n"]
     md = ["\n###", "\n##", "\n#", "\n***", "\n\t", "\n"]
+    toml = ["\n\n[", "\n[","\n", "\n\t"]
 
 
 @service
 class ChunkingService:
-    Chunks: List[MinimalSource]
+    Chunks: List[MinimalSource] = []
 
     def _LoadRecusive(self, path) -> Any:
         for obj in listdir(path):
@@ -25,7 +27,7 @@ class ChunkingService:
                 self._LoadRecusive(fullpath)
             elif PermChecker.CanOpenFile(fullpath):
                 format = obj.split('.')[1] if len(obj.split('.')) == 2 else " "
-                self.ChunkFile(fullpath, format)
+                self.Chunks += self.ChunkFile(fullpath, format)
 
     def ChunkFile(self, path, format) -> List[MinimalSource]:
         content = ""
@@ -48,15 +50,31 @@ class ChunkingService:
         chunks = textSplitter.split_text(content)
 
         for txt in chunks:
-            source = MinimalSource()
-            source.text_value = txt
+            source = MinimalSource(
+                file_path=path,
+                text_value=txt,
+                first_character_index=0,
+                last_character_index=0
+            )
+            generated.append(source)
+        return generated
 
-            print(txt)
-        
-
-    @staticmethod
-    def _CheckStatus():
-        pass
+    def _WriteStatus(self, path: str):
+        total = []
+        index = 1
+        for source in self.Chunks:
+            total.append({
+                "file_path": source.file_path,
+                "text_value": source.text_value,
+                "first_character_index": source.first_character_index,
+                "last_character_index": source.last_character_index
+            }) 
+            index += 1
+        if access(path, W_OK):
+            remove(path)
+        with open(path, "x") as f:
+            f.write(AutoJson.to_json(total))
 
     def __init__(self):
         self._LoadRecusive("vllm-0.10.1")
+        self._WriteStatus("data/processed/index.json")
