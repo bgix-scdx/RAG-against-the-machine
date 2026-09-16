@@ -31,6 +31,7 @@ lclean:
 	rm -rf __pycache__ src/__pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) llm_sdk/__pycache__
 
 clean:
+	rm -rf src/*/__pycache__ src/__pycache__
 	rm -rf $(VENV)
 	rm -rf __pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) .venv poetry.lock uv.lock
 

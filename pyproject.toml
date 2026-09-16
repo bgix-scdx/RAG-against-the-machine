@@ -1,19 +1,30 @@
 [project]
 name = "fly-in"
 version = "0.1.0"
-description = "make drones fly from one point to an other"
-requires-python = ">=3.10"
+description = "Make drones fly from one point to another"
+requires-python = ">=3.11" 
 dependencies = [
-    "pydantic",
-    "mypy",
-    "flake8",
-    "BM25"
+    "uv",
+    "langchain",
+    "langchain-community",
+    "langchain-huggingface",
+    "bm25>=0.3.11",
+    "pydantic>=2.13.0",
+    "transformers>=5.17.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.0",
+    "flake8>=7.3.0",
 ]
 
 [tool.poetry]
 package-mode = false
 
+[tool.poetry.dependencies]
+langchain-text-splitters = "^0.2.0"
+
 [tool.poetry.group.dev.dependencies]
-mypy = "*"
-flake8 = "*"
-uv = "*"
+mypy = ">=2.3.0"
+flake8 = ">=7.3.0"

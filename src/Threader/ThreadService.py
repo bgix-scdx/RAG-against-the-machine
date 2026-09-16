@@ -1,7 +1,7 @@
 from ..Utils.Decorators import service
 from threading import Thread, current_thread, Lock, Event
 from typing import List, Any, Callable
-
+from .ThreadInstance import ThreadInstance
 
 @service
 class ThreadManager:
@@ -20,7 +20,7 @@ class ThreadManager:
         def wrapper() -> None:
             currentThread = current_thread()
             try:
-                func(*arg, **kwarg)
+                ThreadInstance(func, *arg, **kwarg)
             finally:
                 with self._lock:
                     self._threads.remove(currentThread)
@@ -33,12 +33,5 @@ class ThreadManager:
                  timeout: float | None = None) -> None:
         self._shutdown_event.set()
         print("was set")
-        if wait:
-            self.joinAll(timeout=timeout)
-
-    def joinAll(self, timeout: float | None = None) -> None:
-        print("joining")
-        with self._lock:
-            threads_snapshot = list(self._threads)
-        for t in threads_snapshot:
-            t.join(timeout=timeout)
+        for thread in self._threads:
+            thread.join()
