@@ -1,6 +1,6 @@
 from ..Utils.Decorators import service
 from ..Utils.AutoJson import AutoJson
-from typing import List, Any
+from typing import List, Any, Dict
 from .DataModels import MinimalSource
 from os.path import isdir
 from os import listdir, access, W_OK, remove
@@ -19,6 +19,7 @@ class FormatPriority(Enum):
 @service
 class ChunkingService:
     Chunks: List[MinimalSource] = []
+    Position: str = "data/processed/index.json"
 
     def _LoadRecusive(self, path) -> Any:
         for obj in listdir(path):
@@ -77,4 +78,11 @@ class ChunkingService:
 
     def __init__(self):
         self._LoadRecusive("vllm-0.10.1")
-        self._WriteStatus("data/processed/index.json")
+        self._WriteStatus(self.Position)
+
+    def fetch_bm25_results(self) -> list[Dict[str, Any]]:
+        from BM25 import load, index
+        corpus = load(self.Position)
+        retriever = index(corpus)
+        return retriever.search(["What are github commands?"], k=5)[0]
+    

@@ -4,13 +4,14 @@ version = "0.1.0"
 description = "Make drones fly from one point to another"
 requires-python = ">=3.11" 
 dependencies = [
-    "uv",
     "langchain",
+    "torch",
     "langchain-community",
     "langchain-huggingface",
     "bm25>=0.3.11",
     "pydantic>=2.13.0",
     "transformers>=5.17.0",
+    "uv>=0.12.15",
 ]
 
 [dependency-groups]
@@ -21,6 +22,14 @@ dev = [
 
 [tool.poetry]
 package-mode = false
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.poetry.dependencies]
 langchain-text-splitters = "^0.2.0"

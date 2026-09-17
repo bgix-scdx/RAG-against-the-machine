@@ -1,5 +1,6 @@
 from .Threader.ThreadService import ThreadManager
 from .Chunker.ChunkingService import ChunkingService
+from .Model.AI import Assistant
 from threading import current_thread
 from time import sleep
 
@@ -16,6 +17,8 @@ def WhileLoop():
 if __name__ == "__main__":
     TM = ThreadManager()
 # TM.Start(WhileLoop)
+    ai = Assistant()
+    print(ai.generate_response("What are github commands?"))
     ChunkingService()
     sleep(1)
     TM.Shutdown()
