@@ -84,5 +84,16 @@ class ChunkingService:
         from BM25 import load, index
         corpus = load(self.Position)
         retriever = index(corpus)
-        return retriever.search(["What are github commands?"], k=5)[0]
+        context = retriever.search(["How to set up a simple VLLM server?"], k=5)[0]
+
+        sort = "{" \
+        "1: Hello World, \n" \
+        "A VLLM server can be set up by following these steps:\n" \
+        "1. Install the VLLM library and its dependencies.\n" \
+        "2. Create a configuration file for the server, specifying the desired settings.\n" \
+        "3. Start the server using the provided command, ensuring that it is running on the desired port.\n" \
+        "4. Test the server by sending requests to it and verifying that it responds correctly." \
+        "}"
+
+        return sort
     
