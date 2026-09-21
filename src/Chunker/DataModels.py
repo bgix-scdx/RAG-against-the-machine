@@ -8,6 +8,7 @@ class MinimalSource(BaseModel):
     first_character_index: int
     last_character_index: int
     text_value: str
+    index: int
 
 
 class UnansweredQuestion(BaseModel):

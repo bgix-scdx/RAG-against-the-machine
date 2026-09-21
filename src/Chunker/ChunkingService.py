@@ -10,7 +10,7 @@ from enum import Enum
 
 
 class FormatPriority(Enum):
-    any = ["\n\t", "\n", " "]
+    any = ["\n\t", "\n"]
     py = ["\nclass", "\ndef", "\n"]
     md = ["\n###", "\n##", "\n#", "\n***", "\n\t", "\n"]
     toml = ["\n\n[", "\n[","\n", "\n\t"]
@@ -32,6 +32,7 @@ class ChunkingService:
 
     def ChunkFile(self, path, format) -> List[MinimalSource]:
         content = ""
+        offset = 0
         generated = []
         priority = (getattr(FormatPriority, format).value if
                     hasattr(FormatPriority, format) else
@@ -51,13 +52,17 @@ class ChunkingService:
         chunks = textSplitter.split_text(content)
 
         for txt in chunks:
+            start = content.index(txt, offset)
+            end = start + len(txt)
             source = MinimalSource(
                 file_path=path,
                 text_value=txt,
-                first_character_index=0,
-                last_character_index=0
+                first_character_index=start,
+                last_character_index=end,
+                index = len(generated) + 1
             )
             generated.append(source)
+            offset = end
         return generated
 
     def _WriteStatus(self, path: str):
@@ -80,20 +85,19 @@ class ChunkingService:
         self._LoadRecusive("vllm-0.10.1")
         self._WriteStatus(self.Position)
 
-    def fetch_bm25_results(self) -> list[Dict[str, Any]]:
+    def fetch_bm25_results(self, question: str) -> SyntaxError:
         from BM25 import load, index
         corpus = load(self.Position)
         retriever = index(corpus)
-        context = retriever.search(["How to set up a simple VLLM server?"], k=5)[0]
+        context = retriever.search([question], k=5)[0]
+        context = sorted(context, key=lambda x: x["score"], reverse=True)
+        sort = ""
+        index = 1
+        #print(context)
 
-        sort = "{" \
-        "1: Hello World, \n" \
-        "A VLLM server can be set up by following these steps:\n" \
-        "1. Install the VLLM library and its dependencies.\n" \
-        "2. Create a configuration file for the server, specifying the desired settings.\n" \
-        "3. Start the server using the provided command, ensuring that it is running on the desired port.\n" \
-        "4. Test the server by sending requests to it and verifying that it responds correctly." \
-        "}"
-
-        return sort
+        for di in context:
+            sort += f"""<Source {index}>\n### Certainty: {di['score']}\n### Text:\n{self.Chunks[di['id']].text_value}\n</Source {index}>\n"""
+            index += 1
+            
+        return context
     

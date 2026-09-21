@@ -15,7 +15,7 @@ install:
 	@echo "Installing Project $(MAIN)"
 	python3 -m venv $(VENV)
 	$(PIP) install --upgrade pip
-	$(PIP) install poetry
+	$(PIP) install poetry uv
 	$(VENV)/bin/poetry config cache-dir $(VENV)/poetrycache
 	$(VENV)/bin/uv sync
 
