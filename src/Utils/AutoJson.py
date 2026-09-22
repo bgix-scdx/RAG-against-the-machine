@@ -23,7 +23,7 @@ class AutoJson:
         for key in value:
             val = value.get(key)
             index += 1
-            text += textlevel + f"{json.dumps(key)}: "
+            text += textlevel + f"{json.dumps(str(key))}: "
             if isinstance(val, (list, dict)):
                 text += " "
                 if isinstance(val, list):

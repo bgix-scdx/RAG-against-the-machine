@@ -14,14 +14,18 @@ SIZE := 2000
 install:
 	@echo "Installing Project $(MAIN)"
 	python3 -m venv $(VENV)
+
+	mkdir -p $(HOME)/goinfre/$(MAIN)
+	export HF_HOME=$(HOME)/goinfre/$(MAIN)
+	export UV_CACHE_DIR=$(HOME)/goinfre/$(MAIN)
+
 	$(PIP) install --upgrade pip
 	$(PIP) install poetry uv
-	$(VENV)/bin/poetry config cache-dir $(VENV)/poetrycache
 	$(VENV)/bin/uv sync
 
 run:
 	echo "Running Project $(MAIN)"
-	$(VENV)/bin/uv run python -m src --max_chunk_size $(SIZE)
+	$(VENV)/bin/uv run python -m src answer "vllm-0.10.0" -k 5 answer_dataset -student_search_results_path "src_old" -save_directory .
 
 debug:
 	$(PYTHON) -m pdb $(MAIN)
@@ -33,6 +37,7 @@ clean:
 	rm -rf src/*/__pycache__ src/__pycache__
 	rm -rf $(VENV)
 	rm -rf __pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) .venv poetry.lock uv.lock
+	rm -rf $(HOME)/goinfre/$(MAIN)
 
 lint:
 	$(MYPY) ./src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs

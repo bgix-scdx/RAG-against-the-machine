@@ -7,7 +7,7 @@ from os import listdir, access, W_OK, remove
 from ..Utils.PermChecker import PermChecker
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from enum import Enum
-
+from json import dumps
 
 class FormatPriority(Enum):
     any = ["\n\t", "\n"]
@@ -74,7 +74,7 @@ class ChunkingService:
                 "text_value": source.text_value,
                 "first_character_index": source.first_character_index,
                 "last_character_index": source.last_character_index
-            }) 
+            })
             index += 1
         if access(path, W_OK):
             remove(path)
@@ -86,18 +86,29 @@ class ChunkingService:
         self._WriteStatus(self.Position)
 
     def fetch_bm25_results(self, question: str) -> SyntaxError:
-        from BM25 import load, index
-        corpus = load(self.Position)
-        retriever = index(corpus)
-        context = retriever.search([question], k=5)[0]
-        context = sorted(context, key=lambda x: x["score"], reverse=True)
-        sort = ""
-        index = 1
-        #print(context)
+        from bm25s import BM25, tokenize
+        import json
+        context = ""
+        sources = {}
+        texted = []
 
-        for di in context:
-            sort += f"""<Source {index}>\n### Certainty: {di['score']}\n### Text:\n{self.Chunks[di['id']].text_value}\n</Source {index}>\n"""
-            index += 1
+    
+        with open(self.Position, "r") as f:
+            sources = json.load(f)
             
+        for i in sources:
+            texted.append(i.get("text_value"))
+
+        retriever = BM25(corpus=texted)
+        retriever.index(tokenize(texted)) #  TODO: Add setting
+
+        query = tokenize(question)
+        docs, scores = retriever.retrieve(query, k=3)
+
+        index = 1
+        for i in docs[0]:
+            context += f"\n<context {index}>\n{i}\n</context {index}>"
+            index += 1
+        
         return context
     

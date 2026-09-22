@@ -12,6 +12,7 @@ dependencies = [
     "pydantic>=2.13.0",
     "transformers>=5.17.0",
     "uv>=0.12.15",
+    "bm25s>=0.3.11",
 ]
 
 [dependency-groups]
