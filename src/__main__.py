@@ -10,7 +10,7 @@ if __name__ == "__main__":
     TM = ThreadManager()
 # TM.Start(WhileLoop)
     #ai = Assistant()
-    print(json.dumps(Process_Arguments(), indent=4))
+    args = json.dumps(Process_Arguments(), indent=4)
     #ChunkingService()
     #question = "What activation formats does the fused batched MoE layer return in vLLhttps://profile-v3.intra.42.fr/M?"
     #print(ai.generate_response(question))

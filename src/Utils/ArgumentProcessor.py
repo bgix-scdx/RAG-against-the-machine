@@ -22,22 +22,24 @@ class ArgumentError(Exception):
         super().__init__(self.message)
         
 
-def Process_Arguments(allow_multiples: bool = False) -> Dict[str, str | int]:
+def Process_Arguments(allow_multiples: bool = False) -> Dict[str, Dict[str, Any]]:
     args = argv[1:len(argv)]
 
-    Arguments = {}
+    Arguments: Dict[str, Dict[str, Any]] = {}
 
     index = 0
     for i in args:
+        index += 1
         if not i[0] == '-' and not i in Arguments:
-            index += 1
             val = Process_Options(index)
             print(i, val)
             if not val == []:
+                if not allow_multiples and len(Arguments) > 0:
+                    raise ArgumentError("Too many arguments.")
                 Arguments[i] = val
     return Arguments
 
-def Process_Options(index: int):
+def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
     args = argv[1:len(argv)]
 
     OptionPosition = 1
@@ -52,7 +54,7 @@ def Process_Options(index: int):
             CommandInfo = i
             break
     if not CommandInfo:
-        return []
+        return {}
     print(f"Trying ", CommandName) 
 
     while OptionPosition < len(CommandInfo):
@@ -68,15 +70,17 @@ def Process_Options(index: int):
             OptionValue = None
         elif isclass(wanted):
             try:
-                Value = wanted(target)
+                Value = wanted(target) #  TODO: Ignore this part.
                 if not OptionValue:
                     OptionValue = Value
                 elif not isinstance(OptionValue, list):
                     OptionValue = [OptionValue, Value]
-                else:
-                    OptionValue += Value
-            except:
-                ArgumentError("Error")
+                elif isinstance(OptionValue, list):
+                    OptionValue += [Value]
+            except ValueError:
+                raise ArgumentError("Invalid Argument Type: "
+                                    f"{wanted.__name__},"
+                                    f" got {target.__class__.__name__}")
         OptionPosition += 1
         index += 1
     if OptionValue:

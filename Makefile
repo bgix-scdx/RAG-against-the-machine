@@ -25,7 +25,7 @@ install:
 
 run:
 	echo "Running Project $(MAIN)"
-	$(VENV)/bin/uv run python -m src answer "vllm-0.10.0" -k 5 answer_dataset -student_search_results_path "src_old" -save_directory .
+	$(VENV)/bin/uv run python -m src answer "vllm-0.10.0" -k 5
 
 debug:
 	$(PYTHON) -m pdb $(MAIN)
