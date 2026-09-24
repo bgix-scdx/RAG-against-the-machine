@@ -1,6 +1,6 @@
 from .Threader.ThreadService import ThreadManager
 from .Chunker.ChunkingService import ChunkingService
-from .Utils.ArgumentProcessor import Process_Arguments
+from .Utils.ArgumentProcessor import Process_Arguments, ArgumentError
 from .Model.AI import Assistant
 from threading import current_thread
 from time import sleep
@@ -8,12 +8,18 @@ import json
 
 if __name__ == "__main__":
     TM = ThreadManager()
-# TM.Start(WhileLoop)
-    #ai = Assistant()
-    args = json.dumps(Process_Arguments(), indent=4)
-    #ChunkingService()
-    #question = "What activation formats does the fused batched MoE layer return in vLLhttps://profile-v3.intra.42.fr/M?"
-    #print(ai.generate_response(question))
-    #print(ChunkingService().fetch_bm25_results(question))
-    #sleep(1)
-    #TM.Shutdown()
+    args = {}
+    command = ""
+    try:
+        args = Process_Arguments()
+    except ArgumentError as e:
+        print(f"\033[38;2;255mError while parsing arguments: {e}\033[0m")
+
+    if not len(args.keys()) > 0:
+        print(f"\033[38;2;255mNo arguments provided.\033[0m")
+    print(args)
+
+    command = list(args.keys())[0]
+
+    if command == "index":
+        ChunkingService()

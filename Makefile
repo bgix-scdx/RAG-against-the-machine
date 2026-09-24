@@ -25,7 +25,7 @@ install:
 
 run:
 	echo "Running Project $(MAIN)"
-	$(VENV)/bin/uv run python -m src answer "vllm-0.10.0" -k 5
+	$(VENV)/bin/uv run python -m src index -max_chunk_size 2000
 
 debug:
 	$(PYTHON) -m pdb $(MAIN)

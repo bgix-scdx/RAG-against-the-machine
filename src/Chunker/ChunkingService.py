@@ -82,7 +82,7 @@ class ChunkingService:
             f.write(AutoJson.to_json(total))
 
     def __init__(self):
-        self._LoadRecusive("vllm-0.10.1")
+        self._LoadRecusive("data/raw")
         self._WriteStatus(self.Position)
 
     def fetch_bm25_results(self, question: str) -> SyntaxError:
