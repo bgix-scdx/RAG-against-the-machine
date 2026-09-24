@@ -5,16 +5,21 @@ from .DataModels import MinimalSource
 from os.path import isdir
 from os import listdir, access, W_OK, remove
 from ..Utils.PermChecker import PermChecker
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 from enum import Enum
 from json import dumps
 
-class FormatPriority(Enum):
-    any = ["\n\t", "\n"]
-    py = ["\nclass", "\ndef", "\n"]
-    md = ["\n###", "\n##", "\n#", "\n***", "\n\t", "\n"]
-    toml = ["\n\n[", "\n[","\n", "\n\t"]
+#class FormatPriority(Enum):
+#    any = ["\n\t", "\n"]
+#    py = ["\nclass", "\ndef", "\n"]
+#    md = ["\n###", "\n##", "\n#", "\n***", "\n\t", "\n"]
+#    toml = ["\n\n[", "\n[","\n", "\n\t"]
 
+class FormatPriority(Enum):
+    any = Language.MARKDOWN
+    py = Language.PYTHON
+    md = Language.MARKDOWN
+    hpp = Language.CPP
 
 @service
 class ChunkingService:
@@ -43,8 +48,8 @@ class ChunkingService:
                 content = f.read()
         except UnicodeDecodeError:
             return generated
-        textSplitter = RecursiveCharacterTextSplitter(
-            separators = priority,
+        textSplitter = RecursiveCharacterTextSplitter.from_language(
+            language = priority,
             chunk_size = 2000,  # TODO: ADD SETTING
             chunk_overlap = 0,
         )
@@ -103,12 +108,21 @@ class ChunkingService:
         retriever.index(tokenize(texted)) #  TODO: Add setting
 
         query = tokenize(question)
-        docs, scores = retriever.retrieve(query, k=3)
+        docs, scores = retriever.retrieve(query, k=5)
 
         index = 1
         for i in docs[0]:
             context += f"\n<context {index}>\n{i}\n</context {index}>"
             index += 1
+
+        found_sources = []
+        if not self.Chunks:
+            self.ChunkFile()
+
+        i = 0
+        for minisource in self.Chunks:
+            if minisource.text_value in docs:
+                found_sources.append(minisource)
         
-        return context
+        return found_sources
     
