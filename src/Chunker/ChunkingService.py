@@ -9,9 +9,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 from enum import Enum
 from json import dumps
 
-#class FormatPriority(Enum):
+# class FormatPriority(Enum):
 #    any = ["\n\t", "\n"]
-#    py = ["\nclass", "\ndef", "\n"]
+#    py = ["class", "def", "\n"]
 #    md = ["\n###", "\n##", "\n#", "\n***", "\n\t", "\n"]
 #    toml = ["\n\n[", "\n[","\n", "\n\t"]
 
@@ -20,6 +20,9 @@ class FormatPriority(Enum):
     py = Language.PYTHON
     md = Language.MARKDOWN
     hpp = Language.CPP
+    cpp = Language.CPP
+    c = Language.C
+    h = Language.C
 
 @service
 class ChunkingService:
@@ -48,16 +51,18 @@ class ChunkingService:
                 content = f.read()
         except UnicodeDecodeError:
             return generated
+    
         textSplitter = RecursiveCharacterTextSplitter.from_language(
             language = priority,
             chunk_size = 2000,  # TODO: ADD SETTING
             chunk_overlap = 0,
+            length_function=len,
         )
 
         chunks = textSplitter.split_text(content)
 
         for txt in chunks:
-            start = content.index(txt, offset)
+            start = 0 #  content.index(txt, offset)
             end = start + len(txt)
             source = MinimalSource(
                 file_path=path,
@@ -91,7 +96,8 @@ class ChunkingService:
         self._WriteStatus(self.Position)
 
     def fetch_bm25_results(self, question: str) -> SyntaxError:
-        from bm25s import BM25, tokenize
+        from bm25s import tokenize
+        import bm25s.high_level as BM25
         import json
         context = ""
         sources = {}
@@ -104,24 +110,29 @@ class ChunkingService:
         for i in sources:
             texted.append(i.get("text_value"))
 
-        retriever = BM25(corpus=texted)
-        retriever.index(tokenize(texted)) #  TODO: Add setting
+        corpus = BM25.load(self.Position, document_column="text_value")
+        retriever = BM25.index(corpus) #  TODO: Add setting
 
         query = tokenize(question)
-        docs, scores = retriever.retrieve(query, k=5)
+        docs = retriever.search([question], k=5)
 
         index = 1
         for i in docs[0]:
-            context += f"\n<context {index}>\n{i}\n</context {index}>"
+            context += f"{i}\n"
             index += 1
 
         found_sources = []
         if not self.Chunks:
             self.ChunkFile()
 
+
+        textsource = [i['document'] for i in docs[0]]
+
+        print(textsource)
+
         i = 0
         for minisource in self.Chunks:
-            if minisource.text_value in docs:
+            if minisource.text_value in textsource:
                 found_sources.append(minisource)
         
         return found_sources
