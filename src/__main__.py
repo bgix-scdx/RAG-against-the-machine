@@ -8,17 +8,15 @@ import json
 from time import time
 from math import floor
 
-if __name__ == "__main__":
+def main_func() -> None:
     TM = ThreadManager()
     args = {}
     command = ""
-    try:
-        args = Process_Arguments()
-    except ArgumentError as e:
-        print(f"\033[38;2;255mError while parsing arguments: {e}\033[0m")
 
-    if not len(args.keys()) > 0:
-        print(f"\033[38;2;255mNo arguments provided.\033[0m")
+    args = Process_Arguments()
+
+    if not args or not len(args.keys()) > 0:
+        return None
 
     command = list(args.keys())[0]
 
@@ -38,7 +36,10 @@ if __name__ == "__main__":
         result = ChunkingService().fetch_bm25_results(question)
     
 
-        print(Assistant().generate_response(question))
+        print(Assistant().generate_response(question).answer)
         print("\n<<USING SOURCES>>\n")
         for i in result:
             print(f"{i.file_path} [{i.first_character_index}:{i.last_character_index}]")
+
+if __name__ == "__main__":
+    main_func()

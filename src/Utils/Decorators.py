@@ -1,4 +1,4 @@
-from typing import Any, Dict, TypeVar, cast
+from typing import Any, Dict, TypeVar, cast, Tuple, Callable
 ServiceType = TypeVar('ServiceType')
 
 
@@ -11,3 +11,25 @@ def service(cls: type[ServiceType]) -> type[ServiceType]:
         return instances[cls]
 
     return cast(type[ServiceType], get_instance)
+
+
+def secure(exeptions: Exception | Tuple[Exception], errored: bool = True) -> Callable:
+    '''Execute a function with expetions, if an exeption is raised, None is returned.'''
+    def deco_func(func) -> Callable:
+        def execute(*args, **kwargs) -> Any | None:
+            try:
+                return func(*args, **kwargs)
+            except exeptions as error:
+                tolist = [f"{v}" for v in list(args) + list(kwargs.values())]
+                dkwargs = ", ".join(tolist)
+                fname = f'"{func.__name__}({dkwargs})"'
+                if not errored:
+                    print("\033[38;2;255;255;0mWarning raise by"
+                          f" {fname}: {error}\033[0m")
+                else:
+                    print("\033[38;2;255;0;0m /!\\ Error Raised by"
+                          f" {fname}: {error}\033[0m")
+                return None
+        return execute
+    return deco_func
+

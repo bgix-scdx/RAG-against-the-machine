@@ -1,6 +1,7 @@
 from transformers import pipeline, AutoTokenizer
 from ..Chunker.ChunkingService import ChunkingService
-from typing import Any
+from ..Chunker.DataModels import AnsweredQuestion, MinimalSource
+from typing import Any, List
 
 class Assistant:
     model: Any = pipeline("text-generation",
@@ -11,23 +12,28 @@ class Assistant:
     tokenizer: Any = AutoTokenizer.from_pretrained("Qwen/Qwen3-0.6B")
 
 
-    def generate_response(self, question: str) -> str:
-        Messages = [{"role": "user", "content": self.BuildPrompt(question)}]
+    def generate_response(self, question: str) -> AnsweredQuestion:
+        sources = ChunkingService().fetch_bm25_results(question)
+        Messages = [{"role": "user", "content": self.BuildPrompt(question,
+                                                                 sources)}]
         template = self.tokenizer.apply_chat_template(Messages, tokenize=False,
                                                  add_generation_prompt=True,
                                                  enable_thinking=False)
         response = self.model(template,
                               do_sample=False,
                               max_new_tokens=250,
-                              num_return_sequences=1,)
-        return response[0]['generated_text'].split("</think>\n")[1]
+                              num_return_sequences=1)
+        Anwser = AnsweredQuestion(
+            sources = sources,
+            anwser = response[0]['generated_text'].split("</think>\n\n")[1]
+        )
+        return Anwser
 
-    def BuildPrompt(self, question: str) -> str:
+    def BuildPrompt(self, question: str, sources: List[MinimalSource]) -> str:
         print()
-        chunks = ChunkingService().fetch_bm25_results(question)
         text = ""
         index = 1
-        for i in chunks:
+        for i in sources:
             text += f"\n{i.text_value}\n"
             index += 1
         return f"""

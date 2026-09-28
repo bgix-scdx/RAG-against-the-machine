@@ -1,7 +1,7 @@
 from sys import argv
 from typing import List, Dict, Any
 from inspect import isclass
-
+from ..Utils.Decorators import secure
 path = str
 query = str
 dir = str
@@ -21,8 +21,8 @@ class ArgumentError(Exception):
     def __init__(self, message: str = "Invalid Argment Passed"):
         self.message = message
         super().__init__(self.message)
-        
 
+@secure(ArgumentError, ArgumentError)
 def Process_Arguments(allow_multiples: bool = False) -> Dict[str, Dict[str, Any]]:
     args = argv[1:len(argv)]
 
