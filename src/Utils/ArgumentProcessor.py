@@ -71,7 +71,7 @@ def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
             OptionValue = None
         elif isclass(wanted):
             try:
-                Value = wanted(target) #  TODO: Ignore this part.
+                Value = wanted(target) #  TODO: Ignore this part for mypy.
                 if not OptionValue:
                     OptionValue = Value
                 elif not isinstance(OptionValue, list):

@@ -1,6 +1,6 @@
 from transformers import pipeline, AutoTokenizer
 from ..Chunker.ChunkingService import ChunkingService
-from ..Chunker.DataModels import AnsweredQuestion, MinimalSource
+from ..Chunker.DataModels import AnsweredQuestion, MinimalSource, UnansweredQuestion
 from typing import Any, List
 
 class Assistant:
@@ -12,9 +12,9 @@ class Assistant:
     tokenizer: Any = AutoTokenizer.from_pretrained("Qwen/Qwen3-0.6B")
 
 
-    def generate_response(self, question: str) -> AnsweredQuestion:
-        sources = ChunkingService().fetch_bm25_results(question)
-        Messages = [{"role": "user", "content": self.BuildPrompt(question,
+    def generate_response(self, UQ: UnansweredQuestion) -> AnsweredQuestion:
+        sources = ChunkingService().fetch_bm25_results(UQ)
+        Messages = [{"role": "user", "content": self.BuildPrompt(UQ.question,
                                                                  sources)}]
         template = self.tokenizer.apply_chat_template(Messages, tokenize=False,
                                                  add_generation_prompt=True,
@@ -23,14 +23,21 @@ class Assistant:
                               do_sample=False,
                               max_new_tokens=250,
                               num_return_sequences=1)
-        Anwser = AnsweredQuestion(
-            sources = sources,
-            anwser = response[0]['generated_text'].split("</think>\n\n")[1]
+
+        print(
+            sources.__class__.__name__,
+            response[0]['generated_text'].split("</think>\n\n")[1]
         )
+        
+        Anwser = AnsweredQuestion(
+            sources=sources,
+            answer=str(response[0]['generated_text'].split("</think>\n\n")[1]),
+            question=UQ.question,
+            question_id=UQ.question_id
+            )
         return Anwser
 
     def BuildPrompt(self, question: str, sources: List[MinimalSource]) -> str:
-        print()
         text = ""
         index = 1
         for i in sources:
