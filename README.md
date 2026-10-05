@@ -1,16 +1,18 @@
 # TODO
 
-- [ ] Indexing
-- - [ ] BM-25
+- [X] Indexing
+- - [X] BM-25
 
-- [ ] Retrieval
-- [ ] Anser Generation
-- [ ] Data Model
-- [ ] Output
+- [X] Retrieval
+- [X] Anwser Generation
+- [X] Data Model
+- [X] Output
 
-- [ ] Mypy
-- [ ] Flake8
+- [X] Mypy
+- [X] Flake8
 - [ ] Readme
+- [ ] Custom Checker
+
 ## bonus
 
  - [ ] Local HTTP api
