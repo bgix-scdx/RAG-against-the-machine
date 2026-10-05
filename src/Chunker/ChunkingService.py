@@ -1,44 +1,20 @@
 from ..Utils.Decorators import service
 from ..Utils.AutoJson import AutoJson
-from typing import List, Any, Dict
+from typing import List, Any
 from .DataModels import MinimalSource, UnansweredQuestion, MinimalSearchResults
 from os.path import isdir
 from os import listdir, access, W_OK, remove
 from ..Utils.PermChecker import PermChecker
-from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from enum import Enum
-from json import dumps
+
 
 class FormatPriority(Enum):
-    any = ["\t\t", "\t", "\n", " ", ""]
-    py = ["class", "def", "\n", " ", ""]
-    md = ["#", "##", "###", "####", "\n\n", "\n", " " ,""]
-    toml = ["[", "[", "\t", " ", ""]
-    cu = [
-            # Déclarations de kernels CUDA
-            "\n__global__ ",
-            "\n__device__ ",
-            "\n__host__ ",
-            # Structures, classes et templates
-            "\ntemplate <",
-            "\ntemplate<",
-            "\nclass ",
-            "\nstruct ",
-            # Blocs de code / fonctions
-            "\n\n",
-            "\n",
-            " ",
-            "",
-        ]
+    any = ["\n\n", "\n", " ", ""]
+    py = ["\nclass", "def", "\n", "\n", " ", ""]
+    md = ["\n#", "\n##", "\n###", "\n####", "\n\n", "\n", " ", ""]
+    toml = ["\n\n[", "\n[", "\n\n", "\n", " ", ""]
 
-# class FormatPriority(Enum):
-#     any = Language.MARKDOWN
-#     py = Language.PYTHON
-#     md = Language.MARKDOWN
-#     hpp = Language.CPP
-#     cpp = Language.CPP
-#     c = Language.C
-#     h = Language.C
 
 @service
 class ChunkingService:
@@ -56,10 +32,10 @@ class ChunkingService:
                 self.Chunks += self.ChunkFile(fullpath, format)
         return True
 
-    def ChunkFile(self, path, format) -> bool:
+    def ChunkFile(self, path: str, format: str) -> List[MinimalSource]:
         content = ""
         offset = 0
-        generated = []
+        generated: List[MinimalSource] = []
         priority = (getattr(FormatPriority, format).value if
                     hasattr(FormatPriority, format) else
                     getattr(FormatPriority, "any").value)
@@ -69,11 +45,10 @@ class ChunkingService:
         except UnicodeDecodeError:
             return generated
 
-    
         textSplitter = RecursiveCharacterTextSplitter(
-            separators = priority,
-            chunk_size = 2000,  # TODO: ADD SETTING
-            chunk_overlap = 0,
+            separators=priority,
+            chunk_size=2000,  # TODO: ADD SETTING
+            chunk_overlap=0,
             is_separator_regex=False,
         )
         chunks = textSplitter.split_text(content)
@@ -86,31 +61,28 @@ class ChunkingService:
                 text_value=txt,
                 first_character_index=start,
                 last_character_index=end,
-                index = len(generated) + 1
+                index=len(generated) + 1
             )
             generated.append(source)
             offset = end
         return generated
 
-    def _WriteStatus(self, path: str):
+    def _WriteStatus(self, path: str) -> None:
         total = []
-        index = 1
 
         for i in self.Chunks:
             total.append({"file_path": i.file_path,
                           "text_value": i.text_value,
                           "first_character_index": i.first_character_index,
-                          "last_character_index": i.last_character_index
-                        })
+                          "last_character_index": i.last_character_index})
 
         if access(path, W_OK):
             remove(path)
         with open(path, "x") as f:
             f.write(AutoJson.to_json(total))
 
-
-    def fetch_bm25_results(self, UQ: UnansweredQuestion, source_count: int = 5) -> MinimalSearchResults:
-        from bm25s import tokenize
+    def fetch_bm25_results(self, UQ: UnansweredQuestion,
+                           source_count: int = 5) -> MinimalSearchResults:
         import bm25s.high_level as BM25
         import json
 
@@ -119,12 +91,12 @@ class ChunkingService:
         texted = []
         with open(self.Position, "r") as f:
             sources = json.load(f)
-            
+
         for i in sources:
             texted.append(i.get("text_value"))
         corpus = BM25.load(self.Position, document_column="text_value")
         if not self.Token:
-            self.Token = BM25.index(corpus) #  TODO: Add setting
+            self.Token = BM25.index(corpus)  # TODO: Add setting
         docs = self.Token.search([UQ.question], k=source_count)
         index = 1
         for i in docs[0]:
@@ -136,12 +108,12 @@ class ChunkingService:
         for i in docs[0]:
             indoc = sources[i['id']]
             source = MinimalSource(
-                file_path = indoc['file_path'],
-                text_value = indoc['text_value'],
-                first_character_index = indoc['first_character_index'],
-                last_character_index = indoc['last_character_index'],
-                score = i['score'],
-                index = 0
+                file_path=indoc['file_path'],
+                text_value=indoc['text_value'],
+                first_character_index=indoc['first_character_index'],
+                last_character_index=indoc['last_character_index'],
+                score=i['score'],
+                index=0
             )
             found_sources.append(source)
 
@@ -150,4 +122,3 @@ class ChunkingService:
             question_id=UQ.question_id,
             retrieved_sources=found_sources
         )
-    

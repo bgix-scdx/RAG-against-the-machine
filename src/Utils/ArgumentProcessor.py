@@ -9,11 +9,13 @@ dir = str
 ArgumentTarget = [
     ["index", "-max_chunk_size", int],
     ["search", query, "-k", int],
-    ["search_dataset", "-dataset_path", path, "-k", int, "-save_directory", path],
+    ["search_dataset", "-dataset_path", path, "-k", int, "-save_directory",
+     path],
     ["answer", query, "-k", int],
-    ["answer_dataset", "-student_search_results_path", path, "-save_directory", dir],
+    ["answer_dataset", "-dataset_path", path, "-save_directory", dir],
     ["evaluate", "-student_search_results_path", path, "-dataset_path", path]
 ]
+
 
 class ArgumentError(Exception):
     message: str
@@ -22,8 +24,10 @@ class ArgumentError(Exception):
         self.message = message
         super().__init__(self.message)
 
-@secure(ArgumentError, ArgumentError)
-def Process_Arguments(allow_multiples: bool = False) -> Dict[str, Dict[str, Any]]:
+
+@secure(ArgumentError)
+def Process_Arguments(allow_multiples: bool = False
+                      ) -> Dict[str, Dict[str, Any]]:
     args = argv[1:len(argv)]
 
     Arguments: Dict[str, Dict[str, Any]] = {}
@@ -31,7 +35,7 @@ def Process_Arguments(allow_multiples: bool = False) -> Dict[str, Dict[str, Any]
     index = 0
     for i in args:
         index += 1
-        if not i[0] == '-' and not i in Arguments:
+        if not i[0] == '-' and i not in Arguments:
             try:
                 val = Process_Options(index)
                 if not val == {}:
@@ -41,6 +45,7 @@ def Process_Arguments(allow_multiples: bool = False) -> Dict[str, Dict[str, Any]
             except IndexError:
                 raise ArgumentError("Incomplete Argument.")
     return Arguments
+
 
 def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
     args = argv[1:len(argv)]
@@ -69,9 +74,9 @@ def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
                     Options["-unamed"] = OptionValue
             OptionName = target
             OptionValue = None
-        elif isclass(wanted):
+        elif isinstance(wanted, type):
             try:
-                Value = wanted(target) #  TODO: Ignore this part for mypy.
+                Value = wanted(target)  # TODO: Ignore this part for mypy.
                 if not OptionValue:
                     OptionValue = Value
                 elif not isinstance(OptionValue, list):

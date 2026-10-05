@@ -13,10 +13,12 @@ def service(cls: type[ServiceType]) -> type[ServiceType]:
     return cast(type[ServiceType], get_instance)
 
 
-def secure(exeptions: Exception | Tuple[Exception], errored: bool = True) -> Callable:
-    '''Execute a function with expetions, if an exeption is raised, None is returned.'''
-    def deco_func(func) -> Callable:
-        def execute(*args, **kwargs) -> Any | None:
+def secure(exeptions: type[BaseException] | Tuple[type[BaseException], ...],
+           errored: bool = True) -> Callable[..., Any]:
+    '''Execute a function with expetions,
+    if an exeption is raised, None is returned.'''
+    def deco_func(func: Callable[..., Any]) -> Callable[..., Any]:
+        def execute(*args: Any, **kwargs: Any) -> Any | None:
             try:
                 return func(*args, **kwargs)
             except exeptions as error:
@@ -32,4 +34,3 @@ def secure(exeptions: Exception | Tuple[Exception], errored: bool = True) -> Cal
                 return None
         return execute
     return deco_func
-

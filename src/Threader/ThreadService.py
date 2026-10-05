@@ -3,6 +3,7 @@ from threading import Thread, current_thread, Lock, Event
 from typing import List, Any, Callable
 from .ThreadInstance import ThreadInstance
 
+
 @service
 class ThreadManager:
     _instance: None | Any = None
@@ -15,7 +16,8 @@ class ThreadManager:
         if not hasattr(self, "_initialized"):
             self._initialized = True
 
-    def Start(self, func: Callable, *arg: Any, **kwarg: Any) -> Thread:
+    def Start(self, func: Callable[..., Any],
+              *arg: Any, **kwarg: Any) -> Thread:
 
         def wrapper() -> None:
             currentThread = current_thread()
