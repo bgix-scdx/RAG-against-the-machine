@@ -2,7 +2,7 @@ from ..Utils.Decorators import service
 from ..Utils.AutoJson import AutoJson
 from typing import List, Any
 from .DataModels import MinimalSource, UnansweredQuestion, MinimalSearchResults
-from os.path import isdir
+from os.path import isdir, isfile
 from os import listdir, access, W_OK, remove
 from ..Utils.PermChecker import PermChecker
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -61,7 +61,6 @@ class ChunkingService:
                 text_value=txt,
                 first_character_index=start,
                 last_character_index=end,
-                index=len(generated) + 1
             )
             generated.append(source)
             offset = end
@@ -77,6 +76,8 @@ class ChunkingService:
                           "last_character_index": i.last_character_index})
 
         if access(path, W_OK):
+            remove(path)
+        if isfile(path):
             remove(path)
         with open(path, "x") as f:
             f.write(AutoJson.to_json(total))
@@ -113,7 +114,6 @@ class ChunkingService:
                 first_character_index=indoc['first_character_index'],
                 last_character_index=indoc['last_character_index'],
                 score=i['score'],
-                index=0
             )
             found_sources.append(source)
 

@@ -1,1 +1,0 @@
-[![Chocolate](https://img.icons8.com/ios/100/000/chocolate.png)](https://www.chocolate.com)

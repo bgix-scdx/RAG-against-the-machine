@@ -13,6 +13,7 @@ dependencies = [
     "transformers>=5.17.0",
     "uv>=0.12.15",
     "bm25s>=0.3.11",
+    "tqdm>=4.70.1",
 ]
 
 [dependency-groups]

@@ -30,7 +30,7 @@ def secure(exeptions: type[BaseException] | Tuple[type[BaseException], ...],
                           f" {fname}: {error}\033[0m")
                 else:
                     print("\033[38;2;255;0;0m /!\\ Error Raised by"
-                          f" {fname}: {error}\033[0m")
+                          f" {fname}: \n\t \"{error}\"\033[0m")
                 return None
         return execute
     return deco_func

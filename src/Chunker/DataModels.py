@@ -9,7 +9,6 @@ class MinimalSource(BaseModel):
     last_character_index: int
     text_value: str
     score: float = 0
-    index: int
 
 
 class UnansweredQuestion(BaseModel):

@@ -22,7 +22,6 @@ install:
 	$(PIP) install --upgrade pip
 	$(PIP) install poetry uv
 	$(VENV)/bin/uv sync
-
 run:
 	echo "Running Project $(MAIN)"
 	$(VENV)/bin/uv run python -m src index -max_chunk_size 2000
@@ -42,15 +41,6 @@ clean: lclean
 	rm -rf __pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) .venv poetry.lock uv.lock
 	rm -rf $(HOME)/goinfre/$(MAIN)
 
-test:
-	.venv/bin/uv run python -m src index -max_chunk_size 2000
-	.venv/bin/uv run python -m src search_dataset -dataset_path data/UnansweredQuestions/dataset_code_public.json -k 10 -save_directory data/output/search_results/AnsweredQuestions/test.json
-	./moulinette evaluate_student_search_results data/output/search_results/AnsweredQuestions/test.json data/AnsweredQuestions/dataset_code_public.json
-	rm data/output/search_results/AnsweredQuestions/test.json
-	.venv/bin/uv run python -m src index -max_chunk_size 2000
-	.venv/bin/uv run python -m src search_dataset -dataset_path data/UnansweredQuestions/dataset_docs_public.json -k 10 -save_directory data/output/search_results/AnsweredQuestions/test.json
-	./moulinette evaluate_student_search_results data/output/search_results/AnsweredQuestions/test.json data/AnsweredQuestions/dataset_docs_public.json
-
 lint:
 	$(MYPY) ./src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 	$(FLAKE8) ./src
@@ -58,3 +48,44 @@ lint:
 lint-strict:
 	$(MYPY) ./src --strict
 	$(FLAKE8) ./src
+
+#######################
+#   ___  _____  _____ #
+#  / _ \ \_   \/__   \#
+# / /_\/  / /\/  / /\/#
+#/ /_\\/\/ /_   / /   #
+#\____/\____/   \/    #
+#######################
+
+gstatus:
+	git status
+
+gadd:
+	git add .
+
+gcommit:
+	read -p " 📡 Commit message : " msg; \
+	git commit -m "$$msg"
+
+gpush:
+	git push
+
+ginit:
+	git init
+	git add .
+	read -p " 📡 Commit message : " msg; \
+	git commit -m "$$msg"
+	echo "\033[0;32mCreated new git with message : \033[1;34m$$msg\033[0m"
+
+gall: gadd gcommit gpush
+
+#########################################
+# ▄████▄ ▄▄▄▄▄▄ ▄▄ ▄▄ ▄▄▄▄▄ ▄▄▄▄   ▄▄▄▄ #
+# ██  ██   ██   ██▄██ ██▄▄  ██▄█▄ ███▄▄ #
+# ▀████▀   ██   ██ ██ ██▄▄▄ ██ ██ ▄▄██▀ #
+#########################################
+
+test:
+	.venv/bin/uv run python -m src index -max_chunk_size 2000
+	.venv/bin/uv run python -m src search_dataset -dataset_path data/UnansweredQuestions/dataset_code_public.json -k 10 -save_directory data/output/search_results/AnsweredQuestions/test.json
+	./moulinette evaluate_student_search_results data/output/search_results/AnsweredQuestions/test.json data/AnsweredQuestions/dataset_code_public.json
