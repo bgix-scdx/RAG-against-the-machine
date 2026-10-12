@@ -1,10 +1,13 @@
 from transformers import pipeline, AutoTokenizer, GenerationConfig
-from ..Chunker.DataModels import AnsweredQuestion, MinimalSource
-from ..Chunker.DataModels import MinimalSearchResults
+from ..Chunker.DataModels import MinimalSource
+from ..Chunker.DataModels import MinimalSearchResults, MinimalAnswer
 from typing import Any, List
 
 
 class Assistant:
+    """
+    The class storing and setting up the LLM to anwser questions using sources.
+    """
     model: Any = pipeline("text-generation",
                           model="Qwen/Qwen3-0.6B",
                           device="cpu",
@@ -13,7 +16,10 @@ class Assistant:
     tokenizer: Any = AutoTokenizer.from_pretrained("Qwen/Qwen3-0.6B")
     rules_path: str = "src/Model/rulePrompts/ruleprompt.txt"
 
-    def generate_response(self, MSR: MinimalSearchResults) -> AnsweredQuestion:
+    def generate_response(self, MSR: MinimalSearchResults) -> MinimalAnswer:
+        """
+        Will generate a response for a question using the sources given.
+        """
         tokenizer = self.tokenizer
         Messages = [{"role": "user",
                      "content": self.BuildPrompt(MSR.question,
@@ -35,15 +41,18 @@ class Assistant:
 
         response = self.model(template,
                               generation_config=config)
-        Anwser = AnsweredQuestion(
-            sources=MSR.retrieved_sources,
-            answer=str(response[0]['generated_text'].split("</think>\n\n")[1]),
+        Anwser = MinimalAnswer(
+            retrieved_sources=MSR.retrieved_sources,
             question=MSR.question,
-            question_id=MSR.question_id
+            question_id=MSR.question_id,
+            answer=str(response[0]['generated_text'].split("</think>\n\n")[1]),
             )
         return Anwser
 
     def BuildPrompt(self, question: str, sources: List[MinimalSource]) -> str:
+        """
+        Set up the prompt for the LLM to use and set up its context.
+        """
         text = ""
         rules = ""
         index = 1

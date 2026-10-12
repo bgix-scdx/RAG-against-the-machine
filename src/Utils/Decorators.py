@@ -3,6 +3,10 @@ ServiceType = TypeVar('ServiceType')
 
 
 def service(cls: type[ServiceType]) -> type[ServiceType]:
+    """
+    Turn a class into a service, returning the only existing instance of the
+    class.
+    """
     instances: Dict[type[ServiceType], ServiceType] = {}
 
     def get_instance(*args: Any, **kwargs: Any) -> ServiceType:

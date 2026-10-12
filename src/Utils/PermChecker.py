@@ -1,4 +1,7 @@
 class PermChecker:
+    """
+    Used to check recurent problemes.
+    """
     @staticmethod
     def CanOpenFile(path: str) -> bool:
         """Used to Validate if the file is a valid file to be chunked.\n

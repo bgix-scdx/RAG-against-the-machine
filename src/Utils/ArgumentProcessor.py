@@ -18,6 +18,9 @@ ArgumentTarget = [
 
 
 class ArgumentError(Exception):
+    """
+    Exception called when an error has been found in the arguments passed.
+    """
     message: str
 
     def __init__(self, message: str = "Invalid Argment Passed"):
@@ -28,6 +31,10 @@ class ArgumentError(Exception):
 @secure(ArgumentError)
 def Process_Arguments(allow_multiples: bool = False
                       ) -> Dict[str, Dict[str, Any]]:
+    """
+    Process all arguments send in the program and return a list of what was
+    called and its values.
+    """
     args = argv[1:len(argv)]
 
     Arguments: Dict[str, Dict[str, Any]] = {}
@@ -48,6 +55,9 @@ def Process_Arguments(allow_multiples: bool = False
 
 
 def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
+    """
+    Will check if all options of a command are the same as the one asked
+    """
     args = argv[1:len(argv)]
 
     OptionPosition = 1
@@ -56,10 +66,12 @@ def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
     Options = {}
     OptionName = None
     OptionValue = None
+
     for i in ArgumentTarget:
         if i[0] == CommandName:
             CommandInfo = i
             break
+
     if not CommandInfo:
         return {}
 
@@ -95,5 +107,4 @@ def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
             Options[OptionName] = OptionValue
         else:
             Options["-unamed"] = OptionValue
-
     return Options

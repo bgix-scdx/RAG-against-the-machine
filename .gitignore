@@ -1,5 +1,5 @@
 .vscode
 .src_old
-data/output/*
+data/output*
 data/processed/*
 data/results/*

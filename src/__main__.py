@@ -1,14 +1,16 @@
-from tqdm import tqdm  # type: ignore[import-untyped, unused-ignore]
 from .Chunker.ChunkingService import ChunkingService
 from .Utils.ArgumentProcessor import Process_Arguments
 from .Utils.PermChecker import PermChecker
 from typing import Dict, Any, List
 from .Chunker.DataModels import UnansweredQuestion, StudentSearchResults
 from .Chunker.DataModels import MinimalSearchResults, MinimalSource
-from .Chunker.DataModels import AnsweredQuestion
+from .Chunker.DataModels import RagDataset, MinimalAnswer
+from .Chunker.DataModels import StudentSearchResultsAndAnswer
 from .Utils.Decorators import secure
+from json.decoder import JSONDecodeError
 from os.path import isfile, isdir
 from os import remove
+from tqdm import tqdm  # type: ignore[import-untyped, unused-ignore]
 
 
 @secure(KeyboardInterrupt)
@@ -57,19 +59,21 @@ def answer(args: Dict[str, Any]) -> None:
 
 
 def search(args: Dict[str, Any]) -> MinimalSearchResults:
+    """Search the sources for a question"""
     question, sources_count = GenerateUQ(args["-unamed"]), int(args["-k"])
     sources = ChunkingService().fetch_bm25_results(question, sources_count)
     return sources
 
 
 def get_text_in_file(datasetsource: Dict[str, Any]) -> str:
+    "Get the text of a file based on the index of the first and last character"
     with open(datasetsource["file_path"], "r") as f:
         return f.read()[datasetsource["first_character_index"]:
                         datasetsource["last_character_index"]]
 
 
 @secure((FileNotFoundError, IsADirectoryError))
-def answer_dataset(args: Dict[str, Any]) -> List[AnsweredQuestion]:
+def answer_dataset(args: Dict[str, Any]) -> StudentSearchResultsAndAnswer:
     """Anwser a dataset and return the answer the list"""
     import json
     from .Model.AI import Assistant
@@ -78,7 +82,7 @@ def answer_dataset(args: Dict[str, Any]) -> List[AnsweredQuestion]:
         raise IsADirectoryError("Expected a directory for -save_directory")
     savepath += "/StudentSearchResultsAndAnswer.json"
     datasets = []
-    answers = []
+    answers: List[MinimalAnswer] = []
     if not isinstance(datapath, str):
         raise ValueError
 
@@ -98,31 +102,24 @@ def answer_dataset(args: Dict[str, Any]) -> List[AnsweredQuestion]:
                 file_path=a["file_path"]
             ) for a in i["retrieved_sources"]]
         )
-        aq: AnsweredQuestion = Assistant().generate_response(search)
-        aq.sources
-        answers.append(aq)
+        ma: MinimalAnswer = Assistant().generate_response(search)
+        answers.append(ma)
 
-    answerJSON = [{
-            "question": a.question,
-            "question_id": a.question_id,
-            "answer": a.answer,
-            "retrieved_sources": [
-                {
-                    "text_value": ms.text_value,
-                    "first_character_index": ms.first_character_index,
-                    "last_character_index": ms.last_character_index,
-                    "file_path": ms.file_path
-                } for ms in a.sources]
-    } for a in answers]
+    studresult = StudentSearchResultsAndAnswer(
+        search_results=answers,
+        k=0
+    )
 
+    answerJSON = studresult.todict()
     if isfile(savepath):
         remove(savepath)
     with open(savepath, "x") as f:
-        f.write(json.dumps(answerJSON, indent=1))
-    return answers
+        f.write(json.dumps(answerJSON, indent=4))
+
+    return studresult
 
 
-@secure(IsADirectoryError)
+@secure((IsADirectoryError, JSONDecodeError, ValueError))
 def search_dataset(args: Dict[str, Any]) -> StudentSearchResults:
     """Search datasets based on a question asked and return the sources."""
     import json
@@ -142,8 +139,28 @@ def search_dataset(args: Dict[str, Any]) -> StudentSearchResults:
     anwsers: List[MinimalSearchResults] = []
     i = 1
     t = time()
-    for data in tqdm(loaded_data['rag_questions'], desc="Searching"):
-        question = GenerateUQ(data["question"], data["question_id"])
+
+    if (not isinstance(loaded_data, dict)
+            or not loaded_data.get("rag_questions")):
+        raise ValueError("Json malformed, needs to be '{rag_questions:[...]}'")
+
+    for rq in loaded_data['rag_questions']:
+        try:
+            if rq["question_id"]:
+                pass  # checking if question_id is inside the json.
+            if not rq.get("question") or rq["question"] == "":
+                print("Question cant not be None or empty.")
+                raise ValueError(rq)
+        except KeyError:
+            raise ValueError("Malformed json,"
+                             "question and question_id are mendatory.\n\t"
+                             f"current value: {rq}")
+
+    rd = RagDataset(rag_questions=([GenerateUQ(data["question"],
+                                               data["question_id"])
+                    for data in loaded_data['rag_questions']]))
+
+    for question in tqdm(rd.rag_questions, desc="Searching"):
         source = ChunkingService().fetch_bm25_results(question, sources_count)
         anwsers.append(source)
         i += 1

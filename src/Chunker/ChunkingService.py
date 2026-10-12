@@ -10,6 +10,9 @@ from enum import Enum
 
 
 class FormatPriority(Enum):
+    """Used to class files chunking priority.\n
+    The key being the format of the file,
+    The value used as a list of separators."""
     any = ["\n\n", "\n", " ", ""]
     py = ["\nclass", "def", "\n", "\n", " ", ""]
     md = ["\n#", "\n##", "\n###", "\n####", "\n\n", "\n", " ", ""]
@@ -18,11 +21,18 @@ class FormatPriority(Enum):
 
 @service
 class ChunkingService:
+    """
+    Used to Chunk and save the chunk or load an existing chunk data.
+    """
     Chunks: List[MinimalSource] = []
     Position: str = "data/processed/index.json"
     Token: Any = None
 
     def _LoadRecusive(self, path: str) -> bool:
+        """
+        Enter a file and call ChunkFile() for each valid files.\n
+        If an other directory is found, it enters inside and call it self.
+        """
         for obj in listdir(path):
             fullpath = path + "/" + obj
             if isdir(fullpath):
@@ -33,6 +43,9 @@ class ChunkingService:
         return True
 
     def ChunkFile(self, path: str, format: str) -> List[MinimalSource]:
+        """
+        Chunk a a valid file and return minimal sources.
+        """
         content = ""
         offset = 0
         generated: List[MinimalSource] = []
@@ -67,6 +80,10 @@ class ChunkingService:
         return generated
 
     def _WriteStatus(self, path: str) -> None:
+        """
+        Will write the saved chunk in the target file when called.
+        Does nothing is self.Chunks is empty.
+        """
         total = []
 
         for i in self.Chunks:
@@ -84,6 +101,10 @@ class ChunkingService:
 
     def fetch_bm25_results(self, UQ: UnansweredQuestion,
                            source_count: int = 5) -> MinimalSearchResults:
+        """
+        Fetch the sources of an Unansered question, with by default 5 sources.
+        put the result in a MinimalSearchResults and returns it.
+        """
         import bm25s.high_level as BM25
         import json
 
