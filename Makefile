@@ -77,7 +77,7 @@ ginit:
 	git commit -m "$$msg"
 	echo "\033[0;32mCreated new git with message : \033[1;34m$$msg\033[0m"
 
-gall: gadd gcommit gpush
+gall: clean gadd gcommit gpush
 
 #########################################
 # ▄████▄ ▄▄▄▄▄▄ ▄▄ ▄▄ ▄▄▄▄▄ ▄▄▄▄   ▄▄▄▄ #
