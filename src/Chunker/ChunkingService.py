@@ -7,6 +7,7 @@ from os import listdir, access, W_OK, remove
 from ..Utils.PermChecker import PermChecker
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from enum import Enum
+from tqdm import tqdm  # type: ignore[import-untyped]
 
 
 class FormatPriority(Enum):
@@ -25,10 +26,11 @@ class ChunkingService:
     Used to Chunk and save the chunk or load an existing chunk data.
     """
     Chunks: List[MinimalSource] = []
+    Paths: List[str] = []
     Position: str = "data/processed/index.json"
     Token: Any = None
 
-    def _LoadRecusive(self, path: str) -> bool:
+    def _LoadRecusive(self, path: str) -> None:
         """
         Enter a file and call ChunkFile() for each valid files.\n
         If an other directory is found, it enters inside and call it self.
@@ -38,8 +40,13 @@ class ChunkingService:
             if isdir(fullpath):
                 self._LoadRecusive(fullpath)
             elif PermChecker.CanOpenFile(fullpath):
-                format = obj.split('.')[1] if len(obj.split('.')) == 2 else " "
-                self.Chunks += self.ChunkFile(fullpath, format)
+                self.Paths += [fullpath]
+
+    def Index(self, path: str) -> bool:
+        self._LoadRecusive(path)
+        for p in tqdm(self.Paths):
+            fileformat = p.split('.')[1] if len(p.split('.')) == 2 else " "
+            self.Chunks += self.ChunkFile(p, fileformat)
         return True
 
     def ChunkFile(self, path: str, format: str) -> List[MinimalSource]:
@@ -143,3 +150,31 @@ class ChunkingService:
             question_id=UQ.question_id,
             retrieved_sources=found_sources
         )
+
+
+
+
+
+class Collision:
+
+    def Event() -> None:
+        pass
+
+
+@service
+class CollisionService:
+    collision_list = []
+
+    def New(Name, Func) -> Collision:
+        col = Collision(Name, Func)
+        self.collission_list.append(col)
+
+    def TouchBound(isnt1, inst2) -> None:
+        if inst2 in isnt1:
+            
+
+
+
+
+class Instance:
+    Collision

@@ -197,7 +197,7 @@ def index(args: Dict[str, Any]) -> None:
     """Index the raw file as a json file of chunks"""
     cs = args["-max_chunk_size"] if args.get("-max_chunk_size") else 2000
     CS = ChunkingService()
-    if CS._LoadRecusive("data/raw"):
+    if CS.Index("data/raw"):
         CS._WriteStatus(CS.Position)
         print(f"\033[38;2;0;255;0mChunks of {cs} has fully been"
               "saved under \"data/processed/index.json\".\033[0m")
