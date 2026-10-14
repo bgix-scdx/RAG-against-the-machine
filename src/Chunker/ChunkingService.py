@@ -150,31 +150,3 @@ class ChunkingService:
             question_id=UQ.question_id,
             retrieved_sources=found_sources
         )
-
-
-
-
-
-class Collision:
-
-    def Event() -> None:
-        pass
-
-
-@service
-class CollisionService:
-    collision_list = []
-
-    def New(Name, Func) -> Collision:
-        col = Collision(Name, Func)
-        self.collission_list.append(col)
-
-    def TouchBound(isnt1, inst2) -> None:
-        if inst2 in isnt1:
-            
-
-
-
-
-class Instance:
-    Collision

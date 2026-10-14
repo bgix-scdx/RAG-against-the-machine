@@ -85,7 +85,13 @@ gall: clean gadd gcommit gpush
 # ▀████▀   ██   ██ ██ ██▄▄▄ ██ ██ ▄▄██▀ #
 #########################################
 
-test:
+test_docs:
 	.venv/bin/uv run python -m src index -max_chunk_size 2000
 	.venv/bin/uv run python -m src search_dataset -dataset_path data/datasets/UnansweredQuestions/dataset_docs_public.json -k 10 -save_directory data/output/search_results/AnsweredQuestions
 	./moulinette evaluate_student_search_results data/output/search_results/AnsweredQuestions/StudentSearchResults.json data/datasets/AnsweredQuestions/dataset_docs_public.json
+
+
+test_code:
+	.venv/bin/uv run python -m src index -max_chunk_size 2000
+	.venv/bin/uv run python -m src search_dataset -dataset_path data/datasets/UnansweredQuestions/dataset_code_public.json -k 10 -save_directory data/output/search_results/AnsweredQuestions
+	./moulinette evaluate_student_search_results data/output/search_results/AnsweredQuestions/StudentSearchResults.json data/datasets/AnsweredQuestions/dataset_code_public.json
