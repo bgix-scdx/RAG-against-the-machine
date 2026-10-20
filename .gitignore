@@ -1,8 +1,7 @@
 .vscode
-.src_old
-data/output*
-data/processed/*
-data/results/*
+data/output/*.json
+data/processed/*.json
+data/results/*.json
 data/output/search_result/code/*.json
 data/output/search_result/docs/*.json
 data/output/search_result_and_answer/code/*.json
