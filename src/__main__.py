@@ -296,10 +296,10 @@ def CreateEmptyFiles() -> None:
     from pathlib import Path
     paths = ["data/output",
              "data/processed",
-             "data/output/search_result/code",
-             "data/output/search_result/docs",
-             "data/output/search_result_and_answer/code",
-             "data/output/search_result_and_answer/docs"]
+             "data/output/search_results/code",
+             "data/output/search_results/docs",
+             "data/output/search_results_and_answer/code",
+             "data/output/search_results_and_answer/docs"]
 
     for str in paths:
         Path(str).mkdir(parents=True, exist_ok=True)

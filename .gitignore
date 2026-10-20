@@ -2,7 +2,7 @@
 data/output/*.json
 data/processed/*.json
 data/results/*.json
-data/output/search_result/code/*.json
-data/output/search_result/docs/*.json
-data/output/search_result_and_answer/code/*.json
-data/output/search_result_and_answer/docs/*.json
+data/output/search_results/code/*.json
+data/output/search_results/docs/*.json
+data/output/search_results_and_answer/code/*.json
+data/output/search_results_and_answer/docs/*.json
