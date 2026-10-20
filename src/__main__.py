@@ -292,11 +292,10 @@ class Commands:
         print()
 
 
-def CreateEmtryFiles() -> None:
+def CreateEmptyFiles() -> None:
     from pathlib import Path
     paths = ["data/output",
              "data/processed",
-             "data/results",
              "data/output/search_result/code",
              "data/output/search_result/docs",
              "data/output/search_result_and_answer/code",
@@ -308,6 +307,7 @@ def CreateEmtryFiles() -> None:
 
 @secure((KeyboardInterrupt, TypeError))
 def main() -> None:
+    CreateEmptyFiles()
     Fire(Commands)
 
 
