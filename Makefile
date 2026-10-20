@@ -22,6 +22,7 @@ install:
 	$(PIP) install --upgrade pip
 	$(PIP) install poetry uv
 	$(VENV)/bin/uv sync
+
 run:
 	echo "Running Project $(MAIN)"
 	$(VENV)/bin/uv run python -m src index -max_chunk_size 2000
@@ -30,9 +31,17 @@ debug:
 	$(PYTHON) -m pdb $(MAIN)
 
 lclean:
-	rm -rf src/*/__pycache__ src/__pycache__
+	rm -rf src/__pycache__
+	rm -rf src/Chunker/__pycache__
+	rm -rf src/Utils/__pycache__
+	rm -rf src/Model/__pycache__
 	rm -rf .mypy_cache
-	rm -rf data/output/search_results/AnsweredQuestions/*.json
+	rm -rf data/output/search_results/*.json
+	rm -rf data/output/search_results/code/*.json
+	rm -rf data/output/search_results/docs/*.json
+	rm -rf data/output/search_results_and_answer/*.json
+	rm -rf data/output/search_results_and_answer/code/*.json
+	rm -rf data/output/search_results_and_answer/docs/*.json
 	rm -rf data/results/*.json
 	rm -rf data/processed/*.json
 
@@ -87,11 +96,11 @@ gall: clean gadd gcommit gpush
 
 test_docs:
 	.venv/bin/uv run python -m src index -max_chunk_size 2000
-	.venv/bin/uv run python -m src search_dataset -dataset_path data/datasets/UnansweredQuestions/dataset_docs_public.json -k 10 -save_directory data/output/search_results/AnsweredQuestions
-	./moulinette evaluate_student_search_results data/output/search_results/AnsweredQuestions/StudentSearchResults.json data/datasets/AnsweredQuestions/dataset_docs_public.json
+	.venv/bin/uv run python -m src search_dataset -dataset_path data/datasets/UnansweredQuestions/dataset_docs_public.json -k 10 -save_directory data/output/search_results
+	./moulinette evaluate_student_search_results data/output/search_results/docs/StudentSearchResults.json data/datasets/AnsweredQuestions/dataset_docs_public.json
 
 
 test_code:
 	.venv/bin/uv run python -m src index -max_chunk_size 2000
-	.venv/bin/uv run python -m src search_dataset -dataset_path data/datasets/UnansweredQuestions/dataset_code_public.json -k 10 -save_directory data/output/search_results/AnsweredQuestions
-	./moulinette evaluate_student_search_results data/output/search_results/AnsweredQuestions/StudentSearchResults.json data/datasets/AnsweredQuestions/dataset_code_public.json
+	.venv/bin/uv run python -m src search_dataset -dataset_path data/datasets/UnansweredQuestions/dataset_code_public.json -k 10 -save_directory data/output/search_results
+	./moulinette evaluate_student_search_results data/output/search_results/code/StudentSearchResults.json data/datasets/AnsweredQuestions/dataset_code_public.json

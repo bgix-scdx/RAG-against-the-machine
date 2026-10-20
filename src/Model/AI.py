@@ -20,6 +20,8 @@ class Assistant:
         """
         Will generate a response for a question using the sources given.
         """
+        if not MSR or not MSR.question:
+            raise ValueError("Question is missing.")
         tokenizer = self.tokenizer
         Messages = [{"role": "user",
                      "content": self.BuildPrompt(MSR.question,

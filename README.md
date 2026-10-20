@@ -18,7 +18,7 @@ With that we must implement a LLM that can anwser the questions, and specify if 
 Results of a datasets needs to be stored in either output/search_results or output/search_results_and_answer
 
 
-# Intruction
+# Instructions
 
 There is a grand total of 6 possible commands.
 
@@ -175,6 +175,9 @@ architecture-beta
 
 # Performance Analysis
 
+Here is two graph related to my performance.
+
+for the time taken, i did not add anwser_dataset but it take around 30 min for 100 questions.
 
 ```mermaid
     xychart
@@ -187,7 +190,7 @@ architecture-beta
 
 ```mermaid
 ---
-title: "recall grades"
+title: "recall grades (%)"
 config:
   radar:
     showLegend: true
@@ -212,6 +215,19 @@ config:
 
 # Design Decisions
 
+There was not much designs decisions as its mostly read and write.
+
+tqdm was used for visual loading bar in the terminal.
+
 # Challenge Faced
 
+The biggest and only problem i really had was the setup for correct answer by the llm,
+
+and making sure i had at least 5% more for all type than required as a safety net
+
+
 # Exemple Usages
+
+a RAG can be implemented in many tough documentation, it allows user to search for any data they have.
+
+It can also be used for AI, since we can not give all documentation to an AI, we can use a RAG to chunk the sources and give it to AI.

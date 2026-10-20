@@ -1,4 +1,4 @@
-from ..Utils.Decorators import service
+from ..Utils.Decorators import service, secure
 from ..Utils.AutoJson import AutoJson
 from typing import List, Any
 from .DataModels import MinimalSource, UnansweredQuestion, MinimalSearchResults
@@ -7,7 +7,7 @@ from os import listdir, access, W_OK, remove
 from ..Utils.PermChecker import PermChecker
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from enum import Enum
-from tqdm import tqdm  # type: ignore[import-untyped]
+from tqdm import tqdm  # type: ignore[import-untyped, unused-ignore]
 
 
 class FormatPriority(Enum):
@@ -42,14 +42,20 @@ class ChunkingService:
             elif PermChecker.CanOpenFile(fullpath):
                 self.Paths += [fullpath]
 
-    def Index(self, path: str) -> bool:
+    @secure(ValueError)
+    def Index(self, path: str, size: int = 2000) -> bool:
+        '''Index all dir in path into chunks of {size}'''
+        if size < 200 or size >= 10000:
+            raise ValueError("Size given is not allowed: "
+                             f"200 =< {200} =< 10000")
         self._LoadRecusive(path)
         for p in tqdm(self.Paths):
             fileformat = p.split('.')[1] if len(p.split('.')) == 2 else " "
-            self.Chunks += self.ChunkFile(p, fileformat)
+            self.Chunks += self.ChunkFile(p, fileformat, size)
         return True
 
-    def ChunkFile(self, path: str, format: str) -> List[MinimalSource]:
+    def ChunkFile(self, path: str, format: str,
+                  size: int) -> List[MinimalSource]:
         """
         Chunk a a valid file and return minimal sources.
         """
@@ -67,7 +73,7 @@ class ChunkingService:
 
         textSplitter = RecursiveCharacterTextSplitter(
             separators=priority,
-            chunk_size=2000,  # TODO: ADD SETTING
+            chunk_size=size,
             chunk_overlap=0,
             is_separator_regex=False,
         )

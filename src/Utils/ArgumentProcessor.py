@@ -36,13 +36,11 @@ def Process_Arguments(allow_multiples: bool = False
     called and its values.
     """
     args = argv[1:len(argv)]
-
     Arguments: Dict[str, Dict[str, Any]] = {}
-
     index = 0
     for i in args:
         index += 1
-        if not i[0] == '-' and i not in Arguments:
+        if not i == "" and not i[0] == '-' and i not in Arguments:
             try:
                 val = Process_Options(index)
                 if not val == {}:
@@ -99,6 +97,8 @@ def Process_Options(index: int) -> Dict[str, List[Any] | Any]:
                 raise ArgumentError("Invalid Argument Type: "
                                     f"{wanted.__name__},"
                                     f" got {target.__class__.__name__}")
+        else:
+            raise ArgumentError("Invalid Argument Passed.")
         OptionPosition += 1
         index += 1
 
