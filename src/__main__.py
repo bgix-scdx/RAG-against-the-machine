@@ -305,6 +305,7 @@ def CreateEmtryFiles() -> None:
     for str in paths:
         Path(str).mkdir(parents=True, exist_ok=True)
 
+
 @secure((KeyboardInterrupt, TypeError))
 def main() -> None:
     Fire(Commands)
