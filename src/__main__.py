@@ -292,6 +292,19 @@ class Commands:
         print()
 
 
+def CreateEmtryFiles() -> None:
+    from pathlib import Path
+    paths = ["data/output",
+             "data/processed",
+             "data/results",
+             "data/output/search_result/code",
+             "data/output/search_result/docs",
+             "data/output/search_result_and_answer/code",
+             "data/output/search_result_and_answer/docs"]
+
+    for str in paths:
+        Path(str).mkdir(parents=True, exist_ok=True)
+
 @secure((KeyboardInterrupt, TypeError))
 def main() -> None:
     Fire(Commands)
